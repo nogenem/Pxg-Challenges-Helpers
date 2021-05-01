@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Challenge 3-4</title>
+
+    <style>
+      * {
+        border: none;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .container {
+        position: relative;
+      }
+
+      .container > img {
+        position: absolute;
+        cursor: pointer;
+      }
+
+      body {
+        background-color: black;
+      }
+
+      .container img.hidden {
+        opacity: 15%;
+      }
+
+      .container img.highlight {
+        border: 4px solid red;
+        animation: 2s linear infinite img-highlight;
+      }
+      @keyframes img-highlight {
+        0% {
+          border-color: red;
+        }
+        25% {
+          border-color: lightseagreen;
+        }
+        50% {
+          border-color: yellow;
+        }
+        75% {
+          border-color: white;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container"></div>
+
+    <script>
+      const state = {
+        lastSelectedImage: null,
+        lastMatchedImage: null,
+      };
+
+      const container = document.querySelector('.container');
+
+      container.addEventListener('click', onClickContainer);
+
+      const modRow = 6;
+      const modCol = 10;
+
+      fetch('/images')
+        .then(data => data.json())
+        .then(images => {
+          const len = images.length;
+          let modColIdx = 0;
+          images.forEach((image, idx) => {
+            const modRowIdx = idx % modRow;
+            if (idx !== 0 && modRowIdx === 0) modColIdx++;
+            const img = document.createElement('img');
+            img.style.top = `${90 * modRowIdx}px`;
+            img.style.left = `${80 * modColIdx}px`;
+            img.src = image;
+            container.appendChild(img);
+          });
+        });
+
+      async function onClickContainer(event) {
+        const image = event.target;
+        if (
+          image.nodeName !== 'IMG' ||
+          image === state.lastSelectedImage ||
+          image === state.lastMatchedImage ||
+          image.classList.contains('hidden')
+        )
+          return false;
+
+        if (!!state.lastSelectedImage) {
+          state.lastSelectedImage.classList.remove('highlight');
+          state.lastSelectedImage.classList.add('hidden');
+        }
+        if (!!state.lastMatchedImage) {
+          state.lastMatchedImage.classList.remove('highlight');
+          state.lastMatchedImage.classList.add('hidden');
+        }
+        state.lastMatchedImage = null;
+        state.lastSelectedImage = image;
+        image.classList.add('highlight');
+
+        let imgSrc = decodeURI(event.target.src);
+        if (!!imgSrc) {
+          const baseImage = imgSrc.substr(imgSrc.lastIndexOf('/') + 1);
+
+          const images = [
+            ...container.querySelectorAll('img:not(.hidden)'),
+          ].filter(img => img !== image);
+          const promises = [];
+
+          images.forEach(img => {
+            let toCompareImage = decodeURI(img.src);
+            toCompareImage = toCompareImage.substr(
+              toCompareImage.lastIndexOf('/') + 1,
+            );
+
+            promises.push(
+              fetch('/get_match_percent', {
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify({ baseImage, toCompareImage }),
+              }).then(data => data.json()),
+            );
+          });
+
+          const percents = await Promise.all(promises);
+
+          let bestPercent = -1;
+          let bestPercentIdx = -1;
+
+          percents.forEach((p, idx) => {
+            if (p.percent > bestPercent) {
+              bestPercent = p.percent;
+              bestPercentIdx = idx;
+            }
+          });
+          if (bestPercent > -1 && images[bestPercentIdx]) {
+            images[bestPercentIdx].classList.add('highlight');
+            state.lastMatchedImage = images[bestPercentIdx];
+          }
+
+          console.log({
+            percents,
+            bestPercent,
+            bestPercentIdx,
+            matchingImg: images[bestPercentIdx],
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
