@@ -57,14 +57,16 @@ cp ./Pxg-Challenges-Helpers/Challenge_3-4/* C:/Users/XXXX/Pictures/Screenshots/
 cd C:/Users/XXXX/Pictures/Screenshots/
 ```
 
-4. Install the dependencies and start the system
+4. Delete/move all images that are already here, if any
+
+5. Install the dependencies and start the system
  ```bash
 yarn install
 yarn start
 ```
 
-5. Take all necessary screenshots, like described in `Observation about the screenshots`
-6. Open the website `http://localhost:3000` and you should see the board with all the cards, if something went wrong, try again ;p
-7. Now, click on one card and the system should show you the right pair, then you just have to find both cards in the challenge. Keep doing this till the end ;p
+6. Take all necessary screenshots, like described in `Observation about the screenshots`
+7. Open the website `http://localhost:3000` and you should see the board with all the cards, if something went wrong, try again ;p
+8. Now, click on one card and the system should show you the right pair, then you just have to find both cards in the challenge. Keep doing this till the end ;p
 
 **OBS:** If you look at the bottom right card, you will see that there is a candle holder there that may or may not make the `image matching system` miss the right pair, so i would suggest that you leave that to be the last card that you open. 
