@@ -35,6 +35,7 @@
         border: 4px solid red;
         animation: 2s linear infinite img-highlight;
       }
+
       @keyframes img-highlight {
         0% {
           border-color: red;
@@ -51,6 +52,7 @@
       }
     </style>
   </head>
+
   <body>
     <div class="container"></div>
 
@@ -61,15 +63,30 @@
       };
 
       const container = document.querySelector('.container');
-
       container.addEventListener('click', onClickContainer);
 
-      const modRow = 6;
-      const modCol = 10;
+      let width_resolution = window.screen.width;
+      let height_resolution = window.screen.height;
 
-      fetch('/images')
+      if (!!window.location.search) {
+        let match = window.location.search.match(/width_resolution=(\d+)/i);
+        if (!!match && match[1]) {
+          width_resolution = +match[1];
+        }
+
+        match = window.location.search.match(/height_resolution=(\d+)/i);
+        if (!!match && match[1]) {
+          height_resolution = +match[1];
+        }
+      }
+      const search = `?width_resolution=${width_resolution}&height_resolution=${height_resolution}`;
+
+      fetch(`/images${search}`)
         .then(data => data.json())
         .then(images => {
+          const modRow = 6;
+          const modCol = 10;
+
           const len = images.length;
           let modColIdx = 0;
           images.forEach((image, idx) => {
@@ -127,7 +144,10 @@
                   'Content-Type': 'application/json',
                 },
                 method: 'POST',
-                body: JSON.stringify({ baseImage, toCompareImage }),
+                body: JSON.stringify({
+                  baseImage,
+                  toCompareImage,
+                }),
               }).then(data => data.json()),
             );
           });

@@ -14,42 +14,80 @@ app.use(express.static('.'));
 app.get('/images', async (req, res) => {
   const directoryPath = __dirname;
   const croppedImageExt = '.cropped.png';
+
+  const BASE_SCREEN_RESOLUTION = {
+    width: 1920,
+    height: 1080,
+  };
+  // PS: IF THE CARDS AREN'T SHOWING CORRECTLY ON THE WEB PAGE,
+  //     TRY TO PASS YOUR SCREEN RESOLUTION WITH QUERY PARAMS:
+  //      http://localhost:3000?width_resolution=2560&height_resolution=1080
+  const userResolution = {
+    width: +req.query.width_resolution || BASE_SCREEN_RESOLUTION.width,
+    height: +req.query.height_resolution || BASE_SCREEN_RESOLUTION.height,
+  };
+
+  const cropIncrement = {
+    width: (userResolution.width - BASE_SCREEN_RESOLUTION.width) / 2,
+    height: (userResolution.height - BASE_SCREEN_RESOLUTION.height) / 2,
+  };
+
+  // PS: IF THE CARDS AREN'T SHOWING CORRECTLY ON THE WEB PAGE,
+  //     TRY TO PLAY AROUND WITH THESE NUMBERS TILL THEY DO... ;x
+  const BASE_CROP_VALUES = {
+    // These numbers were gotten in resolution 1920x1080
+    top: 498 + cropIncrement.height,
+    left: 835 + cropIncrement.width,
+    width: 64,
+    height: 80,
+    gap: 13,
+  };
+
   const cropOpts = {
-    // When the images are on the left of the character
     left: {
-      // When the character is next to the top card when taking the print
       top: {
-        top: 496,
-        left: 835,
-        width: 63,
-        height: 81,
+        top: BASE_CROP_VALUES.top,
+        left: BASE_CROP_VALUES.left,
+        width: BASE_CROP_VALUES.width,
+        height: BASE_CROP_VALUES.height,
       },
-      // When the character is next to the bottom card when taking the print
       bottom: {
-        top: 589,
-        left: 835,
-        width: 63,
-        height: 81,
+        top:
+          BASE_CROP_VALUES.top + BASE_CROP_VALUES.height + BASE_CROP_VALUES.gap,
+        left: BASE_CROP_VALUES.left,
+        width: BASE_CROP_VALUES.width,
+        height: BASE_CROP_VALUES.height,
       },
     },
-    // When the images are on the right of the character
     right: {
       top: {
-        top: 496,
-        left: 1022,
-        width: 63,
-        height: 81,
+        top: BASE_CROP_VALUES.top,
+        left:
+          userResolution.width -
+          (BASE_CROP_VALUES.left + BASE_CROP_VALUES.width),
+        width: BASE_CROP_VALUES.width,
+        height: BASE_CROP_VALUES.height,
       },
       bottom: {
-        top: 589,
-        left: 1022,
-        width: 63,
-        height: 81,
+        top:
+          BASE_CROP_VALUES.top + BASE_CROP_VALUES.height + BASE_CROP_VALUES.gap,
+        left:
+          userResolution.width -
+          (BASE_CROP_VALUES.left + BASE_CROP_VALUES.width),
+        width: BASE_CROP_VALUES.width,
+        height: BASE_CROP_VALUES.height,
       },
     },
   };
+
+  console.log({
+    userResolution,
+    cropIncrement,
+    cropOptsLeft: cropOpts.left,
+    cropOptsRight: cropOpts.right,
+  });
+
   const modRow = 3;
-  const modCol = 10;
 
   fs.readdir(directoryPath, async function (err, files) {
     //handling error
@@ -103,6 +141,7 @@ app.get('/images', async (req, res) => {
     });
 
     await Promise.all(promises);
+    console.log('<===================================>');
 
     res.send(croppedImages);
   });
@@ -125,9 +164,9 @@ app.post('/get_match_percent', async (req, res) => {
     // https://stackoverflow.com/a/58872979
     const percent = 100 - (dif * 100) / (width * height);
 
-    res.send({ percent });
+    res.send({ percent, toCompareImage });
   } else {
-    res.send({ percent: -1 });
+    res.send({ percent: -1, toCompareImage });
   }
 });
 
