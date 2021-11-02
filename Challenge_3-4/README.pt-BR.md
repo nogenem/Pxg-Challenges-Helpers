@@ -17,6 +17,7 @@ Minha memória é um lixo, ponto. Então eu tive que pensar em um jeito de passa
 Para fazer isso, eu criei um sistema que o usuário tem que tirar "screeshots" das cartas no jogo, e o sistema recria o tabuleiro e quando o usuário clicar em uma carta, o sistema deve mostrar a ele aonde o outro par esta.
 
 ## Requisitos
+
 - [PokeXGames](https://www.pokexgames.com/#/home)
 - [Node JS](https://nodejs.org/en/)
 - [Autohotkey](https://www.autohotkey.com/) [opcional]
@@ -41,19 +42,28 @@ Agora, para tirar as "screenshots" no jogo, você terá que seguir uma ordem **E
 
 _**OBS²:** Após cada tentativa, **DELETE** todas as imagems da tentativa!_
 
+## Observação sobre a primeira tentativa do código
+
+Este código foi testado usando as seguintes resoluções de tela: 1920x1080 e 2560x1080, eu não posso garantir que ele irá funcionar em nenhuma outra resolução, porque não consegui pensar em uma maneira universal de pegar as cartas de uma screenshot, então eu tive que achar os valores manualmente e colocar eles no código, `index.js`.
+
+Digo isso, eu aconselho você a testar o código primeiro no Jogo da Memória do Trade Center (TC). Você pode ir lá, iniciar o jogo da memória, seguir as instruções descritas abaixo na seção `Como usar` e então, se as cartas não estiverem aparecendo corretamente no tabuleiro da página web, você pode ir no `index.js` e brincar com os valores dentro da variável `BASE_CROP_VALUES` até que tudo funcione corretamente. Você só precisa tirar as screenshots **1 vez**, depois disso você pode deslogar do jogo e começar a brincar com os números, o código vai regenerar as imagens cortadas.
+
 ## Como usar
 
-1. Clone o repositório: 
+1. Clone o repositório:
+
 ```bash
 git clone https://github.com/nogenem/Pxg-Challenges-Helpers.git
 ```
 
 2. Copie os arquivos para a pasta `C:/Users/XXXX/Pictures/Screenshots/`
+
 ```bash
 cp ./Pxg-Challenges-Helpers/Challenge_3-4/* C:/Users/XXXX/Pictures/Screenshots/
 ```
 
 3. Entre na pasta correta
+
 ```bash
 cd C:/Users/XXXX/Pictures/Screenshots/
 ```
@@ -61,7 +71,8 @@ cd C:/Users/XXXX/Pictures/Screenshots/
 4. Se ja tiver imagens na pasta, delete/mova-as!
 
 5. Instale as dependências e inicie o sistema
- ```bash
+
+```bash
 yarn install
 yarn start
 ```
